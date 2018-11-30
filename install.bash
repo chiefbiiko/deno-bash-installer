@@ -8,7 +8,7 @@ TAG_URL="$DENO_REPO_URL/releases/tag"
 
 print_help () {
   echo "deno-bash-installer"
-  echo "usage: bash $0 [ -t, --tag  specific deno version ] [ -h, --help ]"
+  echo "usage: sudo bash $0 [ -t, --tag  specific deno version ] [ -h, --help ]"
 }
 
 panic () { # error
@@ -20,43 +20,52 @@ pinup () { # info
   echo "[deno-bash-installer info] $1"
 }
 
-release_url () { # tag
+release_url () { # tag?
   case $OSTYPE in
-    darwin) filename="deno_osx_x64.gz";;
-    linux|linux2) filename="deno_linux_x64.gz";;
-    win32|cygwin) filename="deno_win_x64.zip";; #???
-    *) panic "unsupported platform $1";;
+    darwin*) filename="deno_osx_x64.gz";;
+    *linux*) filename="deno_linux_x64.gz";;
+    *) panic "unsupported platform $OSTYPE";;
   esac
-  if [[ -n $2 ]]; then
-    url="$TAG_URL/$2"
-  else
-    url=$LATEST_RELEASE_URL
-  fi
-  match=$(curl -L $url | grep href | grep $filename | grep -o '/deno[^"]*')
+  if [[ -n $1 ]]; then url="$TAG_URL/$1"; else url=$LATEST_RELEASE_URL; fi
+  pinup "fetching deno releases"
+  html=$(curl --progress-bar -sL $url)
+  match=$(echo $html | grep href | grep $filename | grep -o '/deno[^"]*')
   [[ -z $match ]] && panic "unable to find download url for $filename"
   echo "https://github.com$match"
 }
 
-deno_bin () {
+deno_bin_dir () {
   bin_dir="$HOME/.deno/bin"
   mkdir -p bin_dir
-  bin="$bin_dir/deno"
-  echo bin
+  echo bin_dir
 }
 
-download_install () { # url bin
-  #curl -L $1 | unzip -o deno.exe > $2 # HOMEWORK
+download () { # url bin
+  pinup "downloading $1 > $2"
+  curl --progress-bar -sL $1 | gunzip > $2
+}
+
+mk_handy () { # bin_dir bin
+  pinup "plugging up the binary and yo path"
+  chmod 744 $2
+  [[ ":$PATH:" -ne *"$HOME/.deno/bin"* ]] && PATH="$1:$PATH"
 }
 
 main () { # tag?
-  bin=$(deno_bin)
   url=$(release_url $1)
-  download_install $url $bin
-  # TODO: maybe append 2 $PATH, verify install n exit
+  bin_dir=$(deno_bin_dir)
+  bin="$bin_dir/deno"
+  download $url $bin
+  [[ $? -ne 0 ]] && panic "download failed"
+  mk_handy $bin_dir $bin
+  [[ $? -ne 0 ]] && panic "installation failed"
+  pinup "successful installation"
+  echo "$(deno --version)"
+  exit 0
 }
 
 for opt in $@; do case $opt in
   -h|--help) print_help; exit 0;
 esac; done
 
-#main $1
+main $1
