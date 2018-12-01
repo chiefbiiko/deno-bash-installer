@@ -1,0 +1,4 @@
+os:
+  - linux
+  - osx
+script: curl https://raw.githubusercontent.com/chiefbiiko/deno-bash-installer/master/install.sh | sudo bash
