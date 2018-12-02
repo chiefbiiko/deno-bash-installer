@@ -9,7 +9,10 @@ TAG_RELEASE_URL="$DENO_REPO_URL/releases/tag"
 DENO_DIR="$HOME/.deno"
 DENO_BIN_DIR="$DENO_DIR/bin"
 DENO_BIN="$DENO_BIN_DIR/deno"
-DENO_LINK=/usr/local/bin/deno
+DENO_LINK="/usr/local/bin/deno"
+
+LINUX_GZ="deno_linux_x64.gz"
+OSX_GZ="deno_osx_x64.gz"
 
 print_help () {
   echo "deno-bash-installer"
@@ -27,8 +30,8 @@ pinup () { # info
 
 release_url () { # tag?
   case $OSTYPE in
-    darwin*) filename="deno_osx_x64.gz";;
-    linux*) filename="deno_linux_x64.gz";;
+    linux*) filename=$LINUX_GZ;;
+    darwin*) filename=$OSX_GZ;;
     *) panic "unsupported platform $OSTYPE";;
   esac
   [[ -n $1 ]] && url="$TAG_RELEASE_URL/$1" || url=$LATEST_RELEASE_URL

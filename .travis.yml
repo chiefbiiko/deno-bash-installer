@@ -1,4 +1,5 @@
 os:
   - linux
   - osx
-script: curl https://raw.githubusercontent.com/chiefbiiko/deno-bash-installer/master/install.sh | sudo bash
+before_script: curl https://raw.githubusercontent.com/chiefbiiko/deno-bash-installer/master/install.sh | sudo bash
+script: bash ./test.sh
