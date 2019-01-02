@@ -18,7 +18,7 @@ curl https://raw.githubusercontent.com/chiefbiiko/deno-bash-installer/master/ins
 ### tag
 
 ```
-curl https://raw.githubusercontent.com/chiefbiiko/deno-bash-installer/master/install.sh | sudo bash - v0.2.1
+curl https://raw.githubusercontent.com/chiefbiiko/deno-bash-installer/master/install.sh | sudo bash -s v0.2.5
 ```
 
 ***
